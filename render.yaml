@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: brew-bloom-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: REDIS_URL
+        sync: false
