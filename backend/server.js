@@ -61,7 +61,7 @@ async function ensureDatabase() {
     await redisClient.ping();
     redisAvailable = true;
     const storedMenu = await redisClient.get(MENU_KEY);
-    const existingMenu = parseJson(storedMenu, seedMenu);
+    const existingMenu = Array.isArray(parseJson(storedMenu, seedMenu)) ? parseJson(storedMenu, seedMenu) : seedMenu;
     const normalizedMenu = existingMenu.map((item) => ({
       ...item,
       price: Number.isFinite(Number(item.price)) && Number(item.price) >= MIN_ITEM_PRICE
@@ -81,17 +81,17 @@ async function ensureDatabase() {
     }
   } catch (error) {
     redisAvailable = false;
-    const existingMenu = parseJson(memoryStore[MENU_KEY], seedMenu);
+    const existingMenu = Array.isArray(parseJson(memoryStore[MENU_KEY], seedMenu)) ? parseJson(memoryStore[MENU_KEY], seedMenu) : seedMenu;
     memoryStore[MENU_KEY] = JSON.stringify(existingMenu.map((item) => ({
       ...item,
       price: Number.isFinite(Number(item.price)) && Number(item.price) >= MIN_ITEM_PRICE
         ? Number(item.price)
         : MIN_ITEM_PRICE
     })));
-    if (!memoryStore[ORDERS_KEY]) {
+    if (!Array.isArray(parseJson(memoryStore[ORDERS_KEY], []))) {
       memoryStore[ORDERS_KEY] = JSON.stringify([]);
     }
-    if (!memoryStore[TABLES_KEY]) {
+    if (!Array.isArray(parseJson(memoryStore[TABLES_KEY], seedTables))) {
       memoryStore[TABLES_KEY] = JSON.stringify(seedTables);
     }
   }
@@ -99,17 +99,26 @@ async function ensureDatabase() {
 
 function parseJson(data, fallback) {
   try {
-    return data ? JSON.parse(data) : fallback;
+    if (data === undefined || data === null || data === '') {
+      return fallback;
+    }
+
+    const parsed = JSON.parse(data);
+    if (Array.isArray(fallback) && !Array.isArray(parsed)) {
+      return fallback;
+    }
+    if (!Array.isArray(fallback) && (parsed === null || typeof parsed !== typeof fallback)) {
+      return fallback;
+    }
+    return parsed;
   } catch (error) {
     return fallback;
   }
 }
 
 async function readCollection(key, fallback) {
-  if (redisAvailable) {
-    return parseJson(await redisClient.get(key), fallback);
-  }
-  return parseJson(memoryStore[key], fallback);
+  const value = redisAvailable ? await redisClient.get(key) : memoryStore[key];
+  return parseJson(value, fallback);
 }
 
 async function writeCollection(key, value) {
