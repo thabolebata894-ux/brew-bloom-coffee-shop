@@ -13,7 +13,6 @@ Documents in `docs/`:
 
 - `deployment-report.md` — deployment and integration report (Markdown)
 - `Brew and Bloom - Deployment and Integration Report.docx` — the same report as a formatted Word document with the screenshots embedded
-- `viva-notes.md` / `Brew and Bloom - Viva Preparation Notes.docx` — per-member preparation notes for the oral defence
 - `contribution-report.md` — group roles and responsibilities
 
 ## Features
