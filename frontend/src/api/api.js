@@ -1,4 +1,10 @@
-const API_URL = import.meta.env.VITE_API_URL || '';
+// In development the Vite proxy forwards /api to http://localhost:4000.
+// Production builds must talk to the deployed Express API directly, so fall
+// back to it whenever VITE_API_URL is not provided at build time.
+const PRODUCTION_API_URL = 'https://brew-bloom-backend.onrender.com';
+const FALLBACK_API_URL = import.meta.env.PROD ? PRODUCTION_API_URL : '';
+
+const API_URL = (import.meta.env.VITE_API_URL || FALLBACK_API_URL).replace(/\/+$/, '');
 
 async function request(endpoint, options = {}) {
   const response = await fetch(`${API_URL}${endpoint}`, {
@@ -8,6 +14,7 @@ async function request(endpoint, options = {}) {
     },
     ...options
   });
+  const contentType = response.headers.get('content-type') || '';
 
   if (!response.ok) {
     const text = await response.text();
@@ -20,7 +27,20 @@ async function request(endpoint, options = {}) {
     throw new Error(message);
   }
 
-  return response.status === 204 ? null : response.json();
+  if (response.status === 204) {
+    return null;
+  }
+
+  // A page (HTML) instead of JSON means the request never reached the API.
+  if (!contentType.includes('application/json')) {
+    const body = await response.text();
+    if (body.trimStart().startsWith('<')) {
+      throw new Error(`The app could not reach the API at ${API_URL || window.location.origin}. Check that the backend is running and that VITE_API_URL points to it.`);
+    }
+    throw new Error('The API returned an unexpected response.');
+  }
+
+  return response.json();
 }
 
 export function getMenu() {

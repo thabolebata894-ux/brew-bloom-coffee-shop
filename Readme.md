@@ -77,9 +77,18 @@ For `POST /api/orders`, `fulfillmentType` can be `dine-in` or `delivery`. Delive
 
 ## Deployment notes
 
+### Live deployment (connected)
+
+| Component | URL |
+| --- | --- |
+| Frontend (Vercel) | https://frontend-ten-alpha-29.vercel.app |
+| Backend API (Render) | https://brew-bloom-backend.onrender.com |
+
+The frontend is built with `VITE_API_URL=https://brew-bloom-backend.onrender.com` (set for both Production and Preview in Vercel), and `frontend/src/api/api.js` falls back to that origin for production builds if the variable is ever missing. The integration was verified end to end, including a live order and its cancellation: see `docs/deployment-report.md` (Markdown) or `docs/Brew and Bloom - Deployment and Integration Report.docx` (Word, with the screenshots embedded) and the images in `screenshots/`.
+
 - The React/Vite frontend is ready to deploy to Vercel. Import the repository in Vercel and set the project root directory to `frontend`; Vercel will use `npm run build` and `dist`. `frontend/vercel.json` routes direct page visits back to the React app.
 - The root `render.yaml` configures the Express backend as a Render web service. After importing the GitHub repository into Render, provide `REDIS_URL` from Redis Cloud as a secret environment variable. The selected free Redis Cloud tier has no persistence guarantee; use a tier with persistence enabled if data must survive Redis restarts.
-- In the Vercel project settings, add `VITE_API_URL` for Production (and Preview if needed), set to the deployed backend origin, such as `https://your-backend.example.com` (do not append `/api`). Redeploy after setting it.
+- In the Vercel project settings, `VITE_API_URL` is set for Production and Preview to `https://brew-bloom-backend.onrender.com` (do not append `/api`). Redeploy after changing it.
 - The frontend also needs the backend to allow its Vercel domain through CORS. Configure `VITE_API_URL` before building so API requests use the deployed backend instead of the local Vite proxy.
 
 ## Assignment completion summary
