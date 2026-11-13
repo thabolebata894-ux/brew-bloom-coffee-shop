@@ -9,6 +9,13 @@ This project is a full-stack coffee shop ordering and point-of-sale app. The Rea
 - `docs/` — project documentation and contribution report
 - `screenshots/` — screenshots and deployment evidence
 
+Documents in `docs/`:
+
+- `deployment-report.md` — deployment and integration report (Markdown)
+- `Brew and Bloom - Deployment and Integration Report.docx` — the same report as a formatted Word document with the screenshots embedded
+- `viva-notes.md` / `Brew and Bloom - Viva Preparation Notes.docx` — per-member preparation notes for the oral defence
+- `contribution-report.md` — group roles and responsibilities
+
 ## Features
 
 - Interactive menu filtering for coffee, tea, pastries, and other items
@@ -81,8 +88,11 @@ For `POST /api/orders`, `fulfillmentType` can be `dine-in` or `delivery`. Delive
 
 | Component | URL |
 | --- | --- |
-| Frontend (Vercel) | https://frontend-ten-alpha-29.vercel.app |
+| Frontend (Vercel) | https://frontend-thabolebata894-1162s-projects.vercel.app |
+| Frontend short alias (same build) | https://frontend-ten-alpha-29.vercel.app |
 | Backend API (Render) | https://brew-bloom-backend.onrender.com |
+
+Use the project domain or the alias for marking. A `frontend-<hash>-…vercel.app` address is a frozen snapshot of one build and may predate the API configuration, so it should not be shared.
 
 The frontend is built with `VITE_API_URL=https://brew-bloom-backend.onrender.com` (set for both Production and Preview in Vercel), and `frontend/src/api/api.js` falls back to that origin for production builds if the variable is ever missing. The integration was verified end to end, including a live order and its cancellation: see `docs/deployment-report.md` (Markdown) or `docs/Brew and Bloom - Deployment and Integration Report.docx` (Word, with the screenshots embedded) and the images in `screenshots/`.
 
